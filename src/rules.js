@@ -36,7 +36,7 @@ const rules = [
         case 'code':
           return <pre><code>{children}</code></pre>;
         case 'paragraph':
-          return <p><span>{children}<br/></span></p>;
+          return <p>{children}</p>;
         case 'quote':
           return <blockquote>{children}</blockquote>;
         default:
