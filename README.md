@@ -12,7 +12,15 @@ $ npm install --save react-table-sheet
 ```js
 var reactTableSheet = require('react-table-sheet');
 
-reactTableSheet('Rainbow');
+ReactDOM.render(
+	<TableSheet
+	  width={800}
+	  height={500}
+	  row={10}
+	  column={5}
+	  columnHeader={['header 1', 'header 2', 'header 3', 'header 4', 'header 5']}
+	/>
+, document.getElementById('root'));
 ```
 
 ## Start example server
