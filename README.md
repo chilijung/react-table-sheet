@@ -21,9 +21,13 @@ reactTableSheet('Rainbow');
 node devServer.js
 ```
 
+## Maintainer
+
+[chilijung](https://github.com/chilijung)
+
 ## License
 
-MIT © [chilijung]()
+MIT © [Canner](https://github.com/Canner)
 
 
 [npm-image]: https://badge.fury.io/js/react-table-sheet.svg
