@@ -78,7 +78,7 @@ export default class TableSheet extends Component {
       modifyData = {
         rowNumber: data.rowNumber - 1,
         columnNumber: data.columnNumber,
-        prevRow: selectedRow - 1,
+        prevRow: selectedRow ? selectedRow - 1 : selectedRow,
         prevColumn: selectedColumn
       };
     } else {
@@ -104,7 +104,7 @@ export default class TableSheet extends Component {
       const value = localStorage.getItem('table-sheet-data') || undefined;
       rowColumnMatrix = JSON.parse(value);
       // serialize to html previous cell
-      if (data && data.prevRow && data.prevColumn) {
+      if (data && data.prevRow !== null && data.prevColumn !== null) {
         const prevData = rowColumnMatrix[data.prevRow][data.prevColumn];
 
         if (!isString(prevData)) {
@@ -113,7 +113,7 @@ export default class TableSheet extends Component {
         }
       }
 
-      if (data && data.rowNumber && data.columnNumber) {
+      if (data && data.rowNumber !== null && data.columnNumber !== null) {
         // selected row and column, deserialize cell
         rowColumnMatrix[data.rowNumber][data.columnNumber] =
           html.deserialize(rowColumnMatrix[data.rowNumber][data.columnNumber]);
