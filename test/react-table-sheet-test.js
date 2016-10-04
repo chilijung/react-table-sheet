@@ -1,8 +1,8 @@
-import assert from 'assert';
-import PackageName from '../src';
+// import assert from 'assert';
+// import PackageName from '../src';
 
-describe('PackageName', function() {
-  it('should have unit test!', function() {
-    // assert(false, 'we expected this package author to add actual unit tests.');
-  });
-});
+// describe('PackageName', function() {
+//   it('should have unit test!', function() {
+//     // assert(false, 'we expected this package author to add actual unit tests.');
+//   });
+// });
