@@ -4,7 +4,7 @@ import React, {Component, PropTypes} from 'react';
 import convert, {ALPHABET_ASCII} from 'number-converter-alphabet';
 import {DivTable, DivRow, DivCell} from 'react-modular-table';
 import {createArray} from './utils/twoDimensionArray';
-import {cloneDeep, isString} from 'lodash';
+import {cloneDeep, isString, assign} from 'lodash';
 import Radium from 'radium';
 import {Editor, Html} from 'slate';
 import rules from './rules';
@@ -103,19 +103,20 @@ export default class TableSheet extends Component {
     try {
       const value = localStorage.getItem('table-sheet-data') || undefined;
       rowColumnMatrix = JSON.parse(value);
-      if (data) {
+      // serialize to html previous cell
+      if (data && data.prevRow && data.prevColumn) {
+        const prevData = rowColumnMatrix[data.prevRow][data.prevColumn];
+
+        if (!isString(prevData)) {
+          rowColumnMatrix[data.prevRow][data.prevColumn] =
+            html.serialize(prevData);
+        }
+      }
+
+      if (data && data.rowNumber && data.columnNumber) {
         // selected row and column, deserialize cell
         rowColumnMatrix[data.rowNumber][data.columnNumber] =
           html.deserialize(rowColumnMatrix[data.rowNumber][data.columnNumber]);
-        // serialize to html previous cell
-        if (data.prevRow && data.prevColumn) {
-          const prevData = rowColumnMatrix[data.prevRow][data.prevColumn];
-
-          if (!isString(prevData)) {
-            rowColumnMatrix[data.prevRow][data.prevColumn] =
-              html.serialize(prevData);
-          }
-        }
       }
     } catch (e) {
       rowColumnMatrix = createArray(row, column);
@@ -125,12 +126,28 @@ export default class TableSheet extends Component {
   }
 
   onClickHeaderRow(e, data) {
+    const {
+      selectedRow,
+      selectedColumn
+    } = this.state;
+
     this.props.onClick(e, data);
-    this.setState({
+    const newState = {
       selectedRow: null,
       selectedColumn: null,
       selectedHeaderRow: data.columnNumber
-    });
+    };
+
+    if (selectedRow && selectedColumn) {
+      const prevCell = {prevRow: selectedRow, prevColumn: selectedColumn};
+      this.setState(
+        assign(newState, {
+          contentMatrix: this._checkLocalStorage(...prevCell)
+        })
+      );
+    } else {
+      this.setState(newState);
+    }
   }
 
   onMouseOverColumn(e, data) {
