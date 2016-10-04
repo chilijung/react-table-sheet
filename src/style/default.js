@@ -6,8 +6,7 @@ export default {
   table: {
   },
   cellOuter: {
-    cursor: 'text',
-    display: 'block'
+    textAlign: 'left'
   },
   cell: {
     defaultHeader: {
