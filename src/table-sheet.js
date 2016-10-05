@@ -300,7 +300,8 @@ export default class TableSheet extends Component {
               cellWidth={columnWidth[columnNumber]}
               key={columnNumber}
               data-active={active}
-              style={cellStyleArr}
+              outerStyle={[cellStyleArr]}
+              style={{display: 'inline', wordBreak: 'keep-all'}}
               onMouseOut={this.onMouseOutColumn}
               onMouseOver={e =>
                 this.onMouseOverColumn(e, {rowNumber, columnNumber})}

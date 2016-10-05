@@ -24,6 +24,7 @@ export default {
       backgroundColor: "#EEE",
       textAlign: "center",
       verticalAlign: "middle",
+      overflow: "hidden",
       padding: "3px",
       border: '1px solid #CCC',
       cursor: "pointer"

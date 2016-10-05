@@ -16,8 +16,8 @@ class DemoSheet extends Component {
           <button onClick={this.clear}>Clear localStorage</button>
         </p>
         <TableSheet
-          width={800}
-          height={500}
+          width={1200}
+          height={1000}
           row={10}
           column={5}
           columnHeader={['test1', 'test2', 'test3', 'test4', 'test5']}
