@@ -8,6 +8,16 @@ export default {
   cellOuter: {
     textAlign: 'left'
   },
+  resizeHandler: {
+    backgroundColor: '#AAA',
+    cursor: 'col-resize',
+    position: 'absolute',
+    top: '0px'
+  },
+  // resizeHandlerGuide: {
+  //   position: 'absolute',
+  //   top: '0px'
+  // },
   cell: {
     defaultHeader: {
       backgroundColor: "#EEE",

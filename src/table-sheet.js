@@ -6,6 +6,7 @@ import {DivTable, DivRow, DivCell} from 'react-modular-table';
 import {createArray} from './utils/twoDimensionArray';
 import {cloneDeep, isString, assign} from 'lodash';
 import Radium from 'radium';
+import Draggable from 'react-draggable';
 import {Editor, Html} from 'slate';
 import rules from './rules';
 import schema from './schema';
@@ -22,7 +23,13 @@ export default class TableSheet extends Component {
     this.onMouseOutColumn = this.onMouseOutColumn.bind(this);
     this.onClickHeaderRow = this.onClickHeaderRow.bind(this);
     this._checkLocalStorage = this._checkLocalStorage.bind(this);
+    this.handleStart = this.handleStart.bind(this);
+    this.handleDrag = this.handleDrag.bind(this);
+    this.handleStop = this.handleStop.bind(this);
     const rowColumnMatrix = this._checkLocalStorage();
+
+    const initialColumnWidth = [].constructor.apply(this, new Array(props.column))
+                                  .map(() => props.width / props.column);
 
     this.state = {
       activeRow: null,
@@ -30,6 +37,7 @@ export default class TableSheet extends Component {
       selectedRow: null,
       selectedColumn: null,
       selectedHeaderRow: null,
+      columnWidth: initialColumnWidth,
       contentMatrix: rowColumnMatrix
     };
   }
@@ -40,6 +48,7 @@ export default class TableSheet extends Component {
     row: 20,
     column: 10,
     header: true,
+    resizeColumn: true,
     columnHeader: null,
     theme: 'default',
     onMouseOver: arg => arg,
@@ -49,6 +58,7 @@ export default class TableSheet extends Component {
 
   static propTypes = {
     header: PropTypes.bool,
+    resizeColumn: PropTypes.bool,
     width: PropTypes.number,
     height: PropTypes.number,
     row: PropTypes.number,
@@ -180,6 +190,21 @@ export default class TableSheet extends Component {
     localStorage.setItem('table-sheet-data', JSON.stringify(contentMatrix));
   }
 
+  handleStart(e, data) {
+    console.log('start', e, data)
+  }
+
+  handleDrag(e, data) {
+    console.log('drag', e, data)
+  }
+
+  handleStop(e, data, columnNumber) {
+    const columnWidth = cloneDeep(this.state.columnWidth);
+    columnWidth[columnNumber] += data.x;
+    columnWidth[columnNumber + 1] -= data.x;
+    this.setState({columnWidth});
+  }
+
   render() {
     const {
       width,
@@ -188,7 +213,8 @@ export default class TableSheet extends Component {
       theme,
       column,
       header,
-      columnHeader
+      columnHeader,
+      resizeColumn
     } = this.props;
 
     const {
@@ -197,7 +223,8 @@ export default class TableSheet extends Component {
       selectedColumn,
       selectedRow,
       selectedHeaderRow,
-      contentMatrix
+      contentMatrix,
+      columnWidth
     } = this.state;
 
     // theme style
@@ -205,6 +232,9 @@ export default class TableSheet extends Component {
     const tableStyle = THEME[theme].table;
     const cellOuterStyle = THEME[theme].cellOuter;
     const cellStyle = THEME[theme].cell;
+    const resizeHandlerStyle = THEME[theme].resizeHandler;
+    // const resizeHandlerContainerStyle = THEME[theme].resizeHandlerContainer;
+    // const resizeHandlerGuideStyle = THEME[theme].resizeHandlerGuide;
 
     // if show header add an additional row and column for header.
     const rowArr = [].constructor.apply(this, new Array(header ? (row + 1) : row));
@@ -229,8 +259,33 @@ export default class TableSheet extends Component {
             active = true;
           }
 
+          const prevWidth = columnWidth.slice(0, columnNumber + 1)
+                              .reduce((acc, cur) => acc + cur, 0);
+
+          const resizeHandler = (
+            <Draggable
+              axis="x"
+              zIndex={100}
+              position={{x: 0, y: 0}}
+              bounds={{
+                left: -columnWidth[columnNumber] + 50,
+                right: columnWidth[columnNumber + 1] - 50
+              }}
+              onStart={this.handleStart}
+              onDrag={this.handleDrag}
+              onStop={(e, data) => this.handleStop(e, data, columnNumber)}>
+              <div style={[resizeHandlerStyle,
+                {
+                  height: '30px',
+                  width: '3px',
+                  left: prevWidth - 3
+                }]}/>
+            </Draggable>
+          );
+
           return (
             <DivCell
+              cellWidth={columnWidth[columnNumber]}
               key={columnNumber}
               data-active={active}
               style={cellStyleArr}
@@ -240,6 +295,10 @@ export default class TableSheet extends Component {
               onClick={e =>
                 this.onClickHeaderRow(e, {rowNumber, columnNumber})}
             >
+              {
+                resizeColumn &&
+                (columnNumber + 1 !== columnWidth.length) ? resizeHandler : null
+              }
               {val ? val : convert(columnNumber, ALPHABET_ASCII).toUpperCase()}
             </DivCell>
           );
@@ -265,6 +324,7 @@ export default class TableSheet extends Component {
         return (
           <DivCell
             key={columnNumber}
+            cellWidth={columnWidth[columnNumber]}
             data-active={active}
             outerStyle={cellOuterStyle}
             style={cellStyleArr}
@@ -299,7 +359,7 @@ export default class TableSheet extends Component {
             {
               rowArr.map((val, rowNumber) => {
                 return (
-                  <DivRow key={rowNumber}>
+                  <DivRow key={rowNumber} rowHeight={rowNumber === 0 ? 30 : null}>
                     {cells(rowNumber)}
                   </DivRow>
                 );
