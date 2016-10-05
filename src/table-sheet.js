@@ -190,18 +190,21 @@ export default class TableSheet extends Component {
     localStorage.setItem('table-sheet-data', JSON.stringify(contentMatrix));
   }
 
-  handleStart(e, data) {
-    console.log('start', e, data)
+  handleStart(e, data, prevWidth) {
+    this.resizeGuide.style.display = 'inline';
+    this.resizeGuide.style.left = `${prevWidth - 2}px`;
   }
 
-  handleDrag(e, data) {
-    console.log('drag', e, data)
+  handleDrag(e, data, prevWidth) {
+    this.resizeGuide.style.display = 'inline';
+    this.resizeGuide.style.left = `${prevWidth + data.x - 2}px`;
   }
 
   handleStop(e, data, columnNumber) {
     const columnWidth = cloneDeep(this.state.columnWidth);
     columnWidth[columnNumber] += data.x;
     columnWidth[columnNumber + 1] -= data.x;
+    this.resizeGuide.style.display = 'none';
     this.setState({columnWidth});
   }
 
@@ -233,12 +236,21 @@ export default class TableSheet extends Component {
     const cellOuterStyle = THEME[theme].cellOuter;
     const cellStyle = THEME[theme].cell;
     const resizeHandlerStyle = THEME[theme].resizeHandler;
-    // const resizeHandlerContainerStyle = THEME[theme].resizeHandlerContainer;
-    // const resizeHandlerGuideStyle = THEME[theme].resizeHandlerGuide;
+    const resizeHandlerGuideStyle = THEME[theme].resizeHandlerGuide;
 
     // if show header add an additional row and column for header.
     const rowArr = [].constructor.apply(this, new Array(header ? (row + 1) : row));
     const columnArr = [].constructor.apply(this, new Array(column));
+
+    const resizeHandlerGuide = (
+      <div ref={node => {
+        this.resizeGuide = node;
+      }} style={[resizeHandlerGuideStyle,
+        {
+          height: '100%',
+          border: '1px dashed #CCC'
+        }]}/>
+    );
 
     const cells = rowNumber => {
       if (rowNumber === 0 && header) {
@@ -271,8 +283,8 @@ export default class TableSheet extends Component {
                 left: -columnWidth[columnNumber] + 50,
                 right: columnWidth[columnNumber + 1] - 50
               }}
-              onStart={this.handleStart}
-              onDrag={this.handleDrag}
+              onStart={(e, data) => this.handleStart(e, data, prevWidth)}
+              onDrag={(e, data) => this.handleDrag(e, data, prevWidth)}
               onStop={(e, data) => this.handleStop(e, data, columnNumber)}>
               <div style={[resizeHandlerStyle,
                 {
@@ -297,7 +309,8 @@ export default class TableSheet extends Component {
             >
               {
                 resizeColumn &&
-                (columnNumber + 1 !== columnWidth.length) ? resizeHandler : null
+                (columnNumber + 1 !== columnWidth.length) ?
+                  resizeHandler : null
               }
               {val ? val : convert(columnNumber, ALPHABET_ASCII).toUpperCase()}
             </DivCell>
@@ -355,6 +368,7 @@ export default class TableSheet extends Component {
     return (
       <div style={[containerStyle, {display: 'inline-block'}]}>
         <div style={{position: 'relative'}}>
+          {resizeColumn ? resizeHandlerGuide : null}
           <DivTable width={width} height={height} outerStyle={tableStyle}>
             {
               rowArr.map((val, rowNumber) => {

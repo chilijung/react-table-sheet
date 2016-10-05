@@ -14,10 +14,11 @@ export default {
     position: 'absolute',
     top: '0px'
   },
-  // resizeHandlerGuide: {
-  //   position: 'absolute',
-  //   top: '0px'
-  // },
+  resizeHandlerGuide: {
+    position: 'absolute',
+    top: '0px',
+    display: 'none'
+  },
   cell: {
     defaultHeader: {
       backgroundColor: "#EEE",
