@@ -5,7 +5,7 @@ import TableSheet from '../src';
 class DemoSheet extends Component {
 
   clear() {
-    localStorage.setItem('table-sheet-data', undefined);
+    localStorage.setItem('react-table-sheet-data', undefined);
   }
 
   render() {
