@@ -61,6 +61,10 @@ export default {
       padding: '1px 0 17px 18px',
       borderBottom: '2px solid #EEE',
       marginBottom: '20px'
+    },
+    wordLeft: {
+      margin: '10px',
+      color: '#CCC'
     }
   }
 };

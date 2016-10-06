@@ -30,8 +30,9 @@ export default class TableSheet extends Component {
     this.handleStop = this.handleStop.bind(this);
     this.onChange = this.onChange.bind(this);
     this.onDocumentChange = this.onDocumentChange.bind(this);
-    const rowColumnMatrix = this._checkLocalStorage();
+    this.editorLength = this.editorLength.bind(this);
 
+    const rowColumnMatrix = this._checkLocalStorage();
     const initialColumnWidth = [].constructor.apply(this, new Array(props.column))
                                   .map(() => props.width / props.column);
 
@@ -41,6 +42,7 @@ export default class TableSheet extends Component {
       selectedRow: null,
       selectedColumn: null,
       selectedHeaderRow: null,
+      editorTextLength: 0,
       columnWidth: initialColumnWidth,
       contentMatrix: rowColumnMatrix
     };
@@ -75,6 +77,23 @@ export default class TableSheet extends Component {
     onMouseOut: PropTypes.func,
     onClick: PropTypes.func
   };
+
+  componentDidUpdate(prevProps, prevState) {
+    const {
+      selectedRow,
+      selectedColumn
+    } = this.state;
+
+    if (
+      selectedRow !== null && selectedColumn !== null &&
+        (prevState.selectedRow !== selectedRow ||
+          prevState.selectedColumn !== selectedColumn)) {
+      this.editor.focus();
+
+      const editorTextLength = this.editorLength();
+      this.setState({editorTextLength});
+    }
+  }
 
   onClickColumn(e, data) {
     const {
@@ -181,10 +200,29 @@ export default class TableSheet extends Component {
     });
   }
 
+  editorLength() {
+    const editorTextLength = this.editorContainer.children[0]
+      .textContent.trim().length;
+    return editorTextLength;
+  }
+
   onChange(state, data) {
     let contentMatrix = cloneDeep(this.state.contentMatrix);
-    contentMatrix[data.rowNumber][data.columnNumber] = state;
-    this.setState({contentMatrix});
+    const editorTextLength = this.editorLength();
+
+    if (editorTextLength > 100 &&
+      editorTextLength > this.state.editorTextLength) {
+      this.setState({
+        contentMatrix,
+        editorTextLength: editorTextLength - 1
+      });
+    } else {
+      contentMatrix[data.rowNumber][data.columnNumber] = state;
+      this.setState({
+        contentMatrix,
+        editorTextLength
+      });
+    }
   }
 
   onDocumentChange(document, state, data) {
@@ -231,7 +269,8 @@ export default class TableSheet extends Component {
       selectedRow,
       selectedHeaderRow,
       contentMatrix,
-      columnWidth
+      columnWidth,
+      editorTextLength
     } = this.state;
 
     // theme style
@@ -354,13 +393,23 @@ export default class TableSheet extends Component {
           >
             {
               active ?
-              <Editor
-                schema={schema}
-                state={contentMatrix[header ? rowNumber - 1 : rowNumber][columnNumber]}
-                onChange={state => this.onChange(state, {rowNumber: header ? rowNumber - 1 : rowNumber, columnNumber})}
-                onDocumentChange={(document, state) =>
-                  this.onDocumentChange(document, state, {rowNumber: header ? rowNumber - 1 : rowNumber, columnNumber})}
-                /> :
+              <div ref={node => {
+                this.editorContainer = node;
+              }}>
+                <Editor
+                  ref={node => {
+                    this.editor = node;
+                  }}
+                  schema={schema}
+                  state={contentMatrix[header ? rowNumber - 1 : rowNumber][columnNumber]}
+                  onChange={state => {
+                    this.onChange(state, {rowNumber: header ? rowNumber - 1 : rowNumber, columnNumber});
+                  }}
+                  onDocumentChange={(document, state) => {
+                    this.onDocumentChange(document, state, {rowNumber: header ? rowNumber - 1 : rowNumber, columnNumber});
+                  }}
+                  />
+              </div> :
               <div dangerouslySetInnerHTML={{
                 __html: contentMatrix[header ? rowNumber - 1 : rowNumber][columnNumber]}}
                 style={{width: 'inherit'}}/>
@@ -374,6 +423,7 @@ export default class TableSheet extends Component {
       <div style={[containerStyle, {display: 'inline-block'}]}>
         {selectedRow !== null && selectedColumn !== null ?
           <Toolbar
+            editorTextLength={editorTextLength}
             state={contentMatrix[header ? selectedRow - 1 : selectedRow][selectedColumn]}
             theme={theme}
             onChange={state => this.onChange(state, {

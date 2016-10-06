@@ -19,7 +19,8 @@ export default class Toolbar extends Component {
     state: PropTypes.object,
     onChange: PropTypes.func,
     onDocumentChange: PropTypes.func,
-    theme: PropTypes.string
+    theme: PropTypes.string,
+    editorTextLength: PropTypes.number
   };
 
   onClickMark(e, type) {
@@ -119,8 +120,11 @@ export default class Toolbar extends Component {
   }
 
   render() {
+    const {editorTextLength} = this.props;
     const toolbarMenuStyle = THEME[this.props.theme].toolbar.menu;
+    const toolbarMenuWordLeftStyle = THEME[this.props.theme].toolbar.wordLeft;
 
+    const wordLeft = 100 - editorTextLength;
     return (
       <div style={[toolbarMenuStyle]}>
         {this.renderMarkButton('bold', 'bold')}
@@ -132,6 +136,13 @@ export default class Toolbar extends Component {
         {this.renderBlockButton('block-quote', 'quote-right')}
         {this.renderBlockButton('numbered-list', 'list-ol')}
         {this.renderBlockButton('bulleted-list', 'list-ul')}
+        <div style={[toolbarMenuWordLeftStyle]}>
+          Word left:
+          {wordLeft < 0 ?
+            <span style={{color: 'red'}}>{wordLeft} , too many words.</span> :
+            wordLeft
+          }
+        </div>
       </div>
     );
   }
