@@ -3,11 +3,13 @@ import React, {Component, PropTypes} from 'react';
 
 import convert, {ALPHABET_ASCII} from 'number-converter-alphabet';
 import {DivTable, DivRow, DivCell} from 'react-modular-table';
-import {createArray} from './utils/twoDimensionArray';
 import {cloneDeep, isString, assign} from 'lodash';
 import Radium from 'radium';
 import Draggable from 'react-draggable';
 import {Editor, Html} from 'slate';
+import Toolbar from './toolbar';
+
+import {createArray} from './utils/twoDimensionArray';
 import rules from './rules';
 import schema from './schema';
 import THEME from './style';
@@ -26,6 +28,8 @@ export default class TableSheet extends Component {
     this.handleStart = this.handleStart.bind(this);
     this.handleDrag = this.handleDrag.bind(this);
     this.handleStop = this.handleStop.bind(this);
+    this.onChange = this.onChange.bind(this);
+    this.onDocumentChange = this.onDocumentChange.bind(this);
     const rowColumnMatrix = this._checkLocalStorage();
 
     const initialColumnWidth = [].constructor.apply(this, new Array(props.column))
@@ -148,7 +152,7 @@ export default class TableSheet extends Component {
       selectedHeaderRow: data.columnNumber
     };
 
-    if (selectedRow && selectedColumn) {
+    if (selectedRow !== null && selectedColumn !== null) {
       const prevCell = {prevRow: selectedRow, prevColumn: selectedColumn};
       this.setState(
         assign(newState, {
@@ -300,7 +304,7 @@ export default class TableSheet extends Component {
               cellWidth={columnWidth[columnNumber]}
               key={columnNumber}
               data-active={active}
-              outerStyle={[cellStyleArr]}
+              outerStyle={cellStyleArr}
               style={{display: 'inline', wordBreak: 'keep-all'}}
               onMouseOut={this.onMouseOutColumn}
               onMouseOver={e =>
@@ -368,6 +372,24 @@ export default class TableSheet extends Component {
 
     return (
       <div style={[containerStyle, {display: 'inline-block'}]}>
+        {selectedRow !== null && selectedColumn !== null ?
+          <Toolbar
+            state={contentMatrix[header ? selectedRow - 1 : selectedRow][selectedColumn]}
+            theme={theme}
+            onChange={state => this.onChange(state, {
+              rowNumber: header ? selectedRow - 1 : selectedRow,
+              columnNumber: selectedColumn
+            })}
+            onDocumentChange={(document, state) =>
+              this.onDocumentChange(
+                document,
+                state, {
+                  rowNumber: header ? selectedRow - 1 : selectedRow,
+                  columnNumber: selectedColumn
+                }
+              )
+            }
+            /> : null}
         <div style={{position: 'relative'}}>
           {resizeColumn ? resizeHandlerGuide : null}
           <DivTable width={width} height={height} outerStyle={tableStyle}>

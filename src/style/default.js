@@ -44,5 +44,23 @@ export default {
     selected: {
       border: '2px solid #aaa'
     }
+  },
+  toolbar: {
+    icon: {
+      fontSize: '18px'
+    },
+    button: {
+      color: '#CCC',
+      cursor: 'pointer',
+      padding: '10px'
+    },
+    active: {
+      color: 'black'
+    },
+    menu: {
+      padding: '1px 0 17px 18px',
+      borderBottom: '2px solid #EEE',
+      marginBottom: '20px'
+    }
   }
 };
