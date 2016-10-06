@@ -58,6 +58,7 @@ export default class TableSheet extends Component {
     columnHeader: [],
     columnWidth: [],
     theme: 'default',
+    localStorageKey: 'react-table-sheet-data',
     onMouseOver: arg => arg,
     onMouseOut: arg => arg,
     onClick: arg => arg
@@ -73,6 +74,7 @@ export default class TableSheet extends Component {
     columnHeader: PropTypes.array,
     columnWidth: PropTypes.array,
     theme: PropTypes.string,
+    localStorageKey: PropTypes.string,
     selectedRow: PropTypes.number,
     selectedColumn: PropTypes.number,
     onMouseOver: PropTypes.func,
@@ -136,7 +138,7 @@ export default class TableSheet extends Component {
 
     let rowColumnMatrix;
     try {
-      const value = localStorage.getItem('table-sheet-data') || undefined;
+      const value = localStorage.getItem(this.props.localStorageKey) || undefined;
       rowColumnMatrix = JSON.parse(value);
       // serialize to html previous cell
       if (data && data.prevRow !== null && data.prevColumn !== null) {
@@ -155,7 +157,7 @@ export default class TableSheet extends Component {
       }
     } catch (e) {
       rowColumnMatrix = createArray(row, column);
-      localStorage.setItem('table-sheet-data', JSON.stringify(rowColumnMatrix));
+      localStorage.setItem(this.props.localStorageKey, JSON.stringify(rowColumnMatrix));
     }
     return rowColumnMatrix;
   }
@@ -231,7 +233,7 @@ export default class TableSheet extends Component {
     let contentMatrix = cloneDeep(this.state.contentMatrix);
     const string = html.serialize(state);
     contentMatrix[data.rowNumber][data.columnNumber] = string;
-    localStorage.setItem('table-sheet-data', JSON.stringify(contentMatrix));
+    localStorage.setItem(this.props.localStorageKey, JSON.stringify(contentMatrix));
   }
 
   handleStart(e, data, prevWidth) {
