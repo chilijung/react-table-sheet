@@ -33,7 +33,8 @@ export default {
       border: '1px solid #AAA'
     },
     default: {
-      border: '1px solid #CCC'
+      border: '1px solid #CCC',
+      overflow: 'hidden'
     },
     active: {
       backgroundColor: '#DEF'

@@ -34,7 +34,7 @@ export default class TableSheet extends Component {
 
     const rowColumnMatrix = this._checkLocalStorage();
     const initialColumnWidth = [].constructor.apply(this, new Array(props.column))
-                                  .map(() => props.width / props.column);
+                                  .map((val, i) => props.columnWidth[i] || props.width / props.column);
 
     this.state = {
       activeRow: null,
@@ -55,7 +55,8 @@ export default class TableSheet extends Component {
     column: 10,
     header: true,
     resizeColumn: true,
-    columnHeader: null,
+    columnHeader: [],
+    columnWidth: [],
     theme: 'default',
     onMouseOver: arg => arg,
     onMouseOut: arg => arg,
@@ -70,6 +71,7 @@ export default class TableSheet extends Component {
     row: PropTypes.number,
     column: PropTypes.number,
     columnHeader: PropTypes.array,
+    columnWidth: PropTypes.array,
     theme: PropTypes.string,
     selectedRow: PropTypes.number,
     selectedColumn: PropTypes.number,
@@ -283,7 +285,8 @@ export default class TableSheet extends Component {
 
     // if show header add an additional row and column for header.
     const rowArr = [].constructor.apply(this, new Array(header ? (row + 1) : row));
-    const columnArr = [].constructor.apply(this, new Array(column));
+    const columnArr = [].constructor.apply(this, new Array(column))
+                        .map((val, i) => columnHeader[i] || convert(i, ALPHABET_ASCII).toUpperCase());
 
     const resizeHandlerGuide = (
       <div ref={node => {
@@ -297,10 +300,7 @@ export default class TableSheet extends Component {
 
     const cells = rowNumber => {
       if (rowNumber === 0 && header) {
-        // if show header and the first row
-        const headers = columnHeader || columnArr;
-
-        return headers.map((val, columnNumber) => {
+        return columnArr.map((val, columnNumber) => {
           let cellStyleArr = [];
           let active = false;
           if (rowNumber === activeRow && columnNumber === activeCell) {
@@ -356,7 +356,7 @@ export default class TableSheet extends Component {
                 (columnNumber + 1 !== columnWidth.length) ?
                   resizeHandler : null
               }
-              {val ? val : convert(columnNumber, ALPHABET_ASCII).toUpperCase()}
+              {val}
             </DivCell>
           );
         });
