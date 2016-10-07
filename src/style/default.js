@@ -1,9 +1,9 @@
 export default {
   container: {
-    backgroundColor: '#FFF',
-    overflow: 'scroll'
+    backgroundColor: '#FFF'
   },
   table: {
+    overflow: 'scroll'
   },
   cellOuter: {
     textAlign: 'left'

@@ -31,7 +31,6 @@ export default class TableSheet extends Component {
     this.onChange = this.onChange.bind(this);
     this.onDocumentChange = this.onDocumentChange.bind(this);
     this.editorLength = this.editorLength.bind(this);
-    this.headerRowScroll = this.headerRowScroll.bind(this);
 
     const rowColumnMatrix = this._checkLocalStorage();
     const initialColumnWidth = [].constructor.apply(this, new Array(props.column))
@@ -43,8 +42,6 @@ export default class TableSheet extends Component {
       selectedRow: null,
       selectedColumn: null,
       selectedHeaderRow: null,
-      headerTop: null,
-      headerLeft: null,
       editorTextLength: 0,
       columnWidth: initialColumnWidth,
       contentMatrix: rowColumnMatrix
@@ -259,24 +256,6 @@ export default class TableSheet extends Component {
     this.setState({columnWidth});
   }
 
-  headerRowScroll(node) {
-    const that = this;
-    if (node && !this.headerScrollListener) {
-      this.headerScrollListener = true;
-      node.addEventListener('scroll', e => {
-        const initialHeaderPosition = e.target.children[1].getBoundingClientRect();
-        that.setState({
-          headerTop: initialHeaderPosition.top,
-          headerLeft: initialHeaderPosition.left
-        });
-      });
-
-      const headerPosition = node.children[1].getBoundingClientRect();
-      this.headerInitialTop = headerPosition.top;
-      this.headerInitialLeft = headerPosition.left;
-    }
-  }
-
   render() {
     const {
       width,
@@ -319,8 +298,7 @@ export default class TableSheet extends Component {
         this.resizeGuide = node;
       }} style={[resizeHandlerGuideStyle,
         {
-          top: this.state.headerTop && headerFixed ?
-            `${this.headerInitialTop - this.state.headerTop}px` : '0px',
+          top: '0px',
           height: '100%',
           border: '1px dashed #CCC'
         }]}/>
@@ -328,6 +306,7 @@ export default class TableSheet extends Component {
 
     const cells = rowNumber => {
       if (rowNumber === 0 && header) {
+
         return columnArr.map((val, columnNumber) => {
           let cellStyleArr = [];
           let active = false;
@@ -469,40 +448,34 @@ export default class TableSheet extends Component {
             }
             /> : null}
         <div
-          ref={node => {
-            if (headerFixed) {
-              this.headerRowScroll(node);
-            } else {
-              return;
-            }
-          }}
           style={[containerStyle, {
-            display: 'inline-block',
             position: 'relative',
             width: width,
             height: height,
-            paddingTop: headerFixed ? '30px' : '0px'
+            paddingTop: header && headerFixed ? '30px' : '0px'
           }]}>
           {resizeColumn ? resizeHandlerGuide : null}
-          <DivTable width={width} height={height} outerStyle={tableStyle}>
-            {
-              rowArr.map((val, rowNumber) => {
-                return (
-                  <DivRow
-                    key={rowNumber}
-                    rowHeight={rowNumber === 0 ? 30 : null}
-                    outerStyle={rowNumber === 0 && headerFixed ? {
-                      position: 'absolute',
-                      top: this.state.headerTop ?
-                        `${this.headerInitialTop - this.state.headerTop}px` : '0px',
-                      left: '0px'
-                    } : null}>
-                    {cells(rowNumber)}
-                  </DivRow>
-                );
-              })
-            }
-          </DivTable>
+          <div style={{overflow: 'scroll', width, height}}>
+            <DivTable width={width} height={height} outerStyle={tableStyle}>
+              {
+                rowArr.map((val, rowNumber) => {
+                  return (
+                    <DivRow
+                      key={rowNumber}
+                      rowHeight={rowNumber === 0 ? 30 : null}
+                      outerStyle={rowNumber === 0 && header && headerFixed ? {
+                        position: 'absolute',
+                        top: '0px',
+                        left: '0px',
+                        WebkitTransform: 'translateZ(0)'
+                      } : null}>
+                      {cells(rowNumber)}
+                    </DivRow>
+                  );
+                })
+              }
+            </DivTable>
+          </div>
         </div>
       </div>
     );
