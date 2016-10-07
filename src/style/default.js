@@ -16,7 +16,6 @@ export default {
   },
   resizeHandlerGuide: {
     position: 'absolute',
-    top: '0px',
     display: 'none'
   },
   cell: {

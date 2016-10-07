@@ -319,6 +319,8 @@ export default class TableSheet extends Component {
         this.resizeGuide = node;
       }} style={[resizeHandlerGuideStyle,
         {
+          top: this.state.headerTop && headerFixed ?
+            `${this.headerInitialTop - this.state.headerTop}px` : '0px',
           height: '100%',
           border: '1px dashed #CCC'
         }]}/>
