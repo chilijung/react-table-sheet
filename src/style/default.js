@@ -3,7 +3,6 @@ export default {
     backgroundColor: '#FFF'
   },
   table: {
-    overflow: 'scroll'
   },
   cellOuter: {
     textAlign: 'left'
