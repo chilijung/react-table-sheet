@@ -21,7 +21,6 @@ class DemoSheet extends Component {
             height={600}
             row={10}
             column={5}
-            headerFixed={false}
             columnHeader={['test1', 'test2', 'test3', 'test4', 'test5']}
           />
         </div>
