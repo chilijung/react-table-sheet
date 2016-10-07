@@ -1,7 +1,7 @@
 export default {
   container: {
     backgroundColor: '#FFF',
-    padding: '5px'
+    overflow: 'scroll'
   },
   table: {
   },
